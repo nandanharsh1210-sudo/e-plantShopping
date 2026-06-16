@@ -1,65 +1,79 @@
 import { useDispatch, useSelector } from "react-redux";
-
-import {
-  increaseQuantity,
-  decreaseQuantity,
-  removeItem,
-} from "../redux/CartSlice";
+import { removeItem, updateQuantity } from "../redux/CartSlice";
+import Navbar from "./Navbar";
 
 function CartItem() {
   const dispatch = useDispatch();
 
-  const items = useSelector((state) => state.cart.items);
+  const cartItems = useSelector((state) => state.cart.items);
 
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const calculateTotalAmount = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+  };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Total Cost: ${total}</h2>
+    <>
+      <Navbar />
 
-      {items.map((item) => (
-        <div key={item.id} className="cart-card">
-          <img src={item.image} alt={item.name} />
+      <div className="container">
+        <h2>Total Cart Amount: ${calculateTotalAmount()}</h2>
 
-          <div>
-            <h3>{item.name}</h3>
+        {cartItems.length === 0 ? (
+          <h3>Your cart is empty.</h3>
+        ) : (
+          cartItems.map((item) => (
+            <div className="cart-item" key={item.id}>
+              <img src={item.image} alt={item.name} width="120" />
 
-            <p>${item.price}</p>
+              <div>
+                <h3>{item.name}</h3>
 
-            <p>Total: ${item.price * item.quantity}</p>
+                <p>Unit Price: ${item.price}</p>
 
-            <button
-              onClick={() =>
-                dispatch(decreaseQuantity(item.id))
-              }
-            >
-              -
-            </button>
+                <p>Quantity: {item.quantity}</p>
 
-            <span>{item.quantity}</span>
+                <p>Total: ${item.price * item.quantity}</p>
 
-            <button
-              onClick={() =>
-                dispatch(increaseQuantity(item.id))
-              }
-            >
-              +
-            </button>
+                <button
+                  onClick={() =>
+                    dispatch(
+                      updateQuantity({
+                        id: item.id,
+                        quantity: item.quantity + 1,
+                      })
+                    )
+                  }
+                >
+                  +
+                </button>
 
-            <button
-              onClick={() =>
-                dispatch(removeItem(item.id))
-              }
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
+                <button
+                  onClick={() => {
+                    if (item.quantity > 1) {
+                      dispatch(
+                        updateQuantity({
+                          id: item.id,
+                          quantity: item.quantity - 1,
+                        })
+                      );
+                    }
+                  }}
+                >
+                  -
+                </button>
+
+                <button onClick={() => dispatch(removeItem(item.id))}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </>
   );
 }
 

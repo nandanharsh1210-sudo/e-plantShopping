@@ -1,39 +1,54 @@
-import plants from "../data/plants";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../redux/CartSlice";
+import { addItem } from "../redux/CartSlice";
+import plants from "../data/plants";
+import Navbar from "./Navbar";
 
 function ProductList() {
   const dispatch = useDispatch();
 
   const cartItems = useSelector((state) => state.cart.items);
 
+  const categories = [...new Set(plants.map((plant) => plant.category))];
+
   return (
-    <div className="container">
-      {plants.map((plant) => {
-        const added = cartItems.find(
-          (item) => item.id === plant.id
-        );
+    <>
+      <Navbar />
 
-        return (
-          <div key={plant.id} className="card">
-            <img src={plant.image} alt={plant.name} />
+      <div className="container">
+        {categories.map((category) => (
+          <div key={category}>
+            <h2>{category}</h2>
 
-            <h3>{plant.name}</h3>
+            <div className="plant-grid">
+              {plants
+                .filter((plant) => plant.category === category)
+                .map((plant) => {
+                  const isAdded = cartItems.some(
+                    (item) => item.id === plant.id
+                  );
 
-            <p>{plant.category}</p>
+                  return (
+                    <div className="plant-card" key={plant.id}>
+                      <img src={plant.image} alt={plant.name} />
 
-            <p>${plant.price}</p>
+                      <h3>{plant.name}</h3>
 
-            <button
-              disabled={added}
-              onClick={() => dispatch(addToCart(plant))}
-            >
-              {added ? "Added" : "Add to Cart"}
-            </button>
+                      <p>${plant.price}</p>
+
+                      <button
+                        disabled={isAdded}
+                        onClick={() => dispatch(addItem(plant))}
+                      >
+                        {isAdded ? "Added" : "Add to Cart"}
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
-        );
-      })}
-    </div>
+        ))}
+      </div>
+    </>
   );
 }
 
