@@ -14,6 +14,10 @@ function CartItem() {
     );
   };
 
+  const calculateTotalCost = (item) => {
+    return item.price * item.quantity;
+  };
+
   return (
     <>
       <Navbar />
@@ -35,7 +39,7 @@ function CartItem() {
 
                 <p>Quantity: {item.quantity}</p>
 
-                <p>Total: ${item.price * item.quantity}</p>
+                <p>Total: ${calculateTotalCost(item)}</p>
 
                 <button
                   onClick={() =>
